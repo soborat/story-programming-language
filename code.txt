@@ -1,0 +1,22 @@
+function Func
+    say three
+    say four
+
+call Func
+say two
+let A be five
+for every Number from one to five
+    for every Cat from eight to six
+        say Cat
+    call Func
+let Dog be fifty
+say Dog
+call Func
+
+function Caramel
+    say three
+    say five
+
+call Caramel
+say two
+call Caramel
