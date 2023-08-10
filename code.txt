@@ -2,7 +2,9 @@ function Func
     say three
     say four
 
-call Func
+call Func//
+read Motan
+say Motan
 say two
 let A be five
 for every Number from one to five

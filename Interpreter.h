@@ -28,17 +28,25 @@ class Interpreter {
                 std::cout << getNumber(variableName) << '\n';
             } else if (variables.find(variableName) != variables.end()) {
                 std::cout << variables[variableName] << '\n';
-
             } else {
-                throw std::runtime_error("Variable " + variableName + " is not defined");
+                throw std::runtime_error("Variable " + variableName + " is not defined\n");
             }
-
+        }
+        if (node->nodeType == READ) {
+            auto *readNode = dynamic_cast<ReadNode*>(node);
+            std::string variableName = readNode->variable;
+            std::string str;
+            std::cin >> str;
+            if(getNumber(str) == -1) {
+                throw std::runtime_error("Invalid number, only 0-99 allowed, example: forty-five\n");
+            }
+            variables[variableName] = getNumber(str);
         }
         if (node->nodeType == IF) {
             auto *ifNode = dynamic_cast<IfNode *>(node);
             std::string variableName = ifNode->variable;
             if (variables.find(variableName) == variables.end()) {
-                throw std::runtime_error("Variable " + variableName + " is not defined");
+                throw std::runtime_error("Variable " + variableName + " is not defined\n");
             }
             int value = variables[variableName];
             bool condition;
@@ -73,6 +81,10 @@ class Interpreter {
         }
         if(node->nodeType == FUNC_DECL) {
             auto *funcDeclNode = dynamic_cast<FunctionDeclarationNode*>(node);
+            std::string functionName = funcDeclNode->name;
+            if(functions.find(functionName) != functions.end()) {
+                throw std::runtime_error("Function " + functionName + " is already declared\n");
+            }
             functions[funcDeclNode->name] = node;
             node->nodeType = ROOT;
         }
@@ -80,7 +92,7 @@ class Interpreter {
             auto *funcCallNode = dynamic_cast<FunctionCallNode*>(node);
             std::string functionName = funcCallNode->name;
             if(functions.find(functionName) == functions.end()) {
-                throw std::runtime_error("Function " + functionName + " is not defined");
+                throw std::runtime_error("Function " + functionName + " is not defined\n");
             }
             eval(functions[functionName]);
         }
@@ -110,6 +122,8 @@ public:
         // ROOT(LET()FOR(IF(SAY())IF(SAY())FOR(FOR(SAY()))))
     }
     // todo: add else, math, strings, ><==!=, break into files
+    // todo: multiple param?
+    // todo: comment last //
     static void run(Node *node) {
         eval(node);
         releaseMemory(node);

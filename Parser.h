@@ -31,9 +31,8 @@ int getNumber(const std::string &number) {
 }
 
 
-
 enum NodeType {
-    ROOT, LET, FOR, IF, SAY, FUNC_DECL, FUNC_CALL
+    ROOT, LET, FOR, IF, SAY, READ, FUNC_DECL, FUNC_CALL
 };
 
 std::string enumToString(NodeType value) {
@@ -42,7 +41,10 @@ std::string enumToString(NodeType value) {
             {LET, "LET"},
             {FOR, "FOR"},
             {IF, "IF"},
-            {SAY, "SAY"}
+            {SAY, "SAY"},
+            {READ, "READ"},
+            {FUNC_DECL, "FUNC_DECL"},
+            {FUNC_CALL, "FUNC_CALL"}
     };
 
     auto it = enumMap.find(value);
@@ -89,6 +91,19 @@ public:
             throw std::runtime_error("Wrong say statement, example: say Number\n");
         }
         nodeType = SAY;
+        variable = words[1];
+    }
+};
+
+class ReadNode : public Node {
+public:
+    std::string variable;
+
+    explicit ReadNode(const std::vector<std::string> &words) {
+        if(words.size() != 2) {
+            throw std::runtime_error("Wrong read statement, example: read Number");
+        }
+        nodeType = READ;
         variable = words[1];
     }
 };
@@ -168,6 +183,20 @@ class Parser {
         }
         return newLines;
     }
+    static std::vector<std::string> removeCommentLines(const std::vector<std::string>& lines) {
+        std::vector<std::string> newLines;
+        std::vector<std::string> comments;
+        for (const std::string &line: lines) {
+            std::size_t len = line.size();
+            if(len >= 2 && line[len-1] == '/' && line[len-2] == '/') {
+                comments.push_back(line);
+            }
+            else {
+                newLines.push_back(line);
+            }
+        }
+        return newLines;
+    }
 
     static std::vector<int> getIndents(const std::vector<std::string> &lines) {
         std::vector<int> indents;
@@ -212,6 +241,7 @@ public:
     static Node *parse(const std::string &code) {
         std::vector<std::string> lines = split(code, '\n');
         lines = removeEmptyLines(lines);
+        lines = removeCommentLines(lines);
         std::vector<int> indents = getIndents(lines);
         if (!checkIndent(lines, indents)) {
             throw std::runtime_error("Change code to Python style 4 spaces indent\n");
@@ -219,7 +249,7 @@ public:
         Node *root = new Node{ROOT};
         std::stack<Node *> level;
         level.push(root);
-        std::vector<std::string> keywords = {"let", "say", "if", "for", "function", "call"};
+        std::vector<std::string> keywords = {"let", "say", "read", "if", "for", "function", "call"};
         for (int i = 0; i < lines.size(); i++) {
             std::vector<std::string> words = split(strip(lines[i]), ' ');
             int levelChange = 0;
@@ -240,6 +270,10 @@ public:
             }
             if (words[0] == "say") {
                 node = new SayNode(words);
+                level.top()->add(node);
+            }
+            if (words[0] == "read") {
+                node = new ReadNode(words);
                 level.top()->add(node);
             }
             if (words[0] == "if") {
