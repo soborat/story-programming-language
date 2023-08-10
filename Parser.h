@@ -1,5 +1,4 @@
-#ifndef PARSER
-#define PARSER
+#pragma once
 
 #include <iostream>
 #include <fstream>
@@ -10,6 +9,7 @@
 #include <algorithm>
 #include <unordered_map>
 #include "Util.h"
+#include "exceptions.h"
 
 std::unordered_map<std::string, int> generateNumbers() {
     std::unordered_map<std::string, int> m;
@@ -24,7 +24,7 @@ std::unordered_map<std::string, int> generateNumbers() {
 
 int getNumber(const std::string &number) {
     static std::unordered_map<std::string, int> allNumbers = generateNumbers();
-    if (allNumbers.find(number) != allNumbers.end()) {
+    if (find(allNumbers, number)) {
         return allNumbers[number];
     }
     return -1;
@@ -32,7 +32,7 @@ int getNumber(const std::string &number) {
 
 
 enum NodeType {
-    ROOT, LET, FOR, IF, ELSE, SAY, READ, FUNC_DECL, FUNC_CALL
+    ROOT, LET, FOR, IF, ELSE, SAY, READ, FUNC_DECL, FUNC_CALL, ADD
 };
 
 std::string enumToString(NodeType value) {
@@ -45,15 +45,13 @@ std::string enumToString(NodeType value) {
             {SAY, "SAY"},
             {READ, "READ"},
             {FUNC_DECL, "FUNC_DECL"},
-            {FUNC_CALL, "FUNC_CALL"}
+            {FUNC_CALL, "FUNC_CALL"},
+            {ADD, "ADD"}
     };
-
-    auto it = enumMap.find(value);
-    if (it != enumMap.end()) {
-        return it->second;
-    } else {
-        return "UNKNOWN";
+    if(find(enumMap, value)) {
+        return enumMap[value];
     }
+    return "UNKNOWN";
 }
 
 class Node {
@@ -75,7 +73,7 @@ public:
 
     explicit VariableNode(const std::vector<std::string> &words) {
         if (words.size() != 4 || std::islower(words[1][0]) || words[2] != "be" || getNumber(words[3]) == -1) {
-            throw std::runtime_error("Wrong variable declaration, example: let A be five\n");
+            throw var_decl();
         }
         nodeType = LET;
         name = words[1];
@@ -102,7 +100,7 @@ public:
 
     explicit ReadNode(const std::vector<std::string> &words) {
         if(words.size() != 2) {
-            throw std::runtime_error("Wrong read statement, example: read Number");
+            throw std::runtime_error("Wrong read statement, example: read Number\n");
         }
         nodeType = READ;
         variable = words[1];
@@ -166,7 +164,7 @@ public:
     std::string name;
     explicit FunctionDeclarationNode(const std::vector<std::string> &words) {
         if(words.size() != 2 || std::islower(words[1][0])) {
-            throw std::runtime_error("Wrong function declaration, example: function Fn");
+            throw std::runtime_error("Wrong function declaration, example: function Fn\n");
         }
         nodeType = FUNC_DECL;
         name = words[1];
@@ -178,10 +176,24 @@ public:
     std::string name;
     explicit FunctionCallNode(const std::vector<std::string> &words) {
         if(words.size() != 2 || std::islower(words[1][0])) {
-            throw std::runtime_error("Wrong function call, example: call Fn");
+            throw std::runtime_error("Wrong function call, example: call Fn\n");
         }
         nodeType = FUNC_CALL;
         name = words[1];
+    }
+};
+
+class AdditionNode : public Node {
+public:
+    std::string receiver;
+    std::string value;
+    explicit AdditionNode(const std::vector<std::string> &words) {
+        if(words.size() != 4 || words[2] != "to" || std::islower(words[3][0])) {
+            throw std::runtime_error("Wrong addition, example: add four to Number\n");
+        }
+        nodeType = ADD;
+        value = words[1];
+        receiver = words[3];
     }
 };
 
@@ -267,9 +279,10 @@ public:
         Node *root = new Node{ROOT};
         std::stack<Node *> level;
         level.push(root);
-        std::vector<std::string> keywords = {"let", "say", "read", "if", "else", "for", "function", "call"};
+        std::vector<std::string> keywords = {"let", "say", "read", "if", "else", "for", "function", "call", "add"};
         for (int i = 0; i < lines.size(); i++) {
             std::vector<std::string> words = split(strip(lines[i]), ' ');
+            std::string task = words[0];
             int levelChange = 0;
             if (i > 0) {
                 levelChange = (indents[i-1] - indents[i]) / 4;
@@ -278,11 +291,10 @@ public:
                 level.pop();
                 levelChange--;
             }
-            if (std::find(keywords.begin(), keywords.end(), words[0]) == keywords.end()) {
-                throw std::runtime_error("Unknown keyword: " + words[0] + '\n');
+            if (not_find(keywords, task)) {
+                throw unknown_keyword(task);
             }
             Node *node;
-            std::string task = words[0];
             if (task == "let") {
                 node = new VariableNode(words);
                 level.top()->add(node);
@@ -322,9 +334,11 @@ public:
                 node = new FunctionCallNode(words);
                 level.top()->add(node);
             }
+            if(task == "add") {
+                node = new AdditionNode(words);
+                level.top()->add(node);
+            }
         }
         return root;
     }
 };
-
-#endif

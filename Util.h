@@ -1,5 +1,4 @@
-#ifndef UTIL
-#define UTIL
+#pragma once
 
 #include <sstream>
 #include <vector>
@@ -34,5 +33,22 @@ std::string strip(const std::string& str) {
     return str.substr(firstNonSpace, lastNonSpace - firstNonSpace + 1);
 }
 
+template <typename Container, typename Value>
+bool find(const Container& container, const Value& value) {
+    return std::find(container.begin(), container.end(), value) != container.end();
+}
 
-#endif
+template <typename K, typename V>
+bool find(const std::unordered_map<K, V> &container, const K &key) {
+    return container.find(key) != container.end();
+}
+
+template <typename Container, typename Value>
+bool not_find(const Container& container, const Value& value) {
+    return std::find(container.begin(), container.end(), value) == container.end();
+}
+
+template <typename K, typename V>
+bool not_find(const std::unordered_map<K, V> &container, const K &key) {
+    return container.find(key) == container.end();
+}

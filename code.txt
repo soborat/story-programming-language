@@ -1,11 +1,8 @@
-function Fn
-    say zero
-    if zero is even
-        say one
+let Dog be zero
+add five to Dog
+add three to Dog
+say Dog
 
-for every Dog from one to eight
-    if Dog is odd
-        say Dog
-    else
-        say two
-        call Fn
+for every I from one to five
+    add one to Dog
+    say Dog

@@ -1,15 +1,25 @@
-#ifndef INTERPRETER
-#define INTERPRETER
+#pragma once
 
 #include <iostream>
 #include <unordered_map>
 #include <string>
 #include "Parser.h"
+#include "exceptions.h"
 
 
 class Interpreter {
     static std::unordered_map<std::string, int> variables;
     static std::unordered_map<std::string, Node*> functions;
+
+    static int getValue(const std::string& str) {
+        if (getNumber(str) != -1) {
+            return getNumber(str);
+        } else if (find(variables, str)) {
+            return variables[str];
+        } else {
+            throw undefined_variable(str);
+        }
+    }
 
     static void eval(Node *node) {
         if (node->nodeType == ROOT) {
@@ -24,13 +34,7 @@ class Interpreter {
         if (node->nodeType == SAY) {
             auto *sayNode = dynamic_cast<SayNode *>(node);
             std::string variableName = sayNode->variable;
-            if (getNumber(variableName) != -1) {
-                std::cout << getNumber(variableName) << '\n';
-            } else if (variables.find(variableName) != variables.end()) {
-                std::cout << variables[variableName] << '\n';
-            } else {
-                throw std::runtime_error("Variable " + variableName + " is not defined\n");
-            }
+            std::cout << getValue(variableName) << '\n';
         }
         if (node->nodeType == READ) {
             auto *readNode = dynamic_cast<ReadNode*>(node);
@@ -38,21 +42,14 @@ class Interpreter {
             std::string str;
             std::cin >> str;
             if(getNumber(str) == -1) {
-                throw std::runtime_error("Invalid number, only 0-99 allowed, example: forty-five\n");
+                throw invalid_number(str);
             }
             variables[variableName] = getNumber(str);
         }
         if (node->nodeType == IF) {
             auto *ifNode = dynamic_cast<IfNode *>(node);
             std::string variableName = ifNode->variable;
-            int value;
-            if (getNumber(variableName) != -1) {
-                value = getNumber(variableName);
-            } else if (variables.find(variableName) != variables.end()) {
-                value =  variables[variableName];
-            } else {
-                throw std::runtime_error("Variable " + variableName + " is not defined\n");
-            }
+            int value = getValue(variableName);
             bool condition;
             if (ifNode->condition == "odd") {
                 condition = value % 2 == 1;
@@ -91,8 +88,8 @@ class Interpreter {
         if(node->nodeType == FUNC_DECL) {
             auto *funcDeclNode = dynamic_cast<FunctionDeclarationNode*>(node);
             std::string functionName = funcDeclNode->name;
-            if(functions.find(functionName) != functions.end()) {
-                throw std::runtime_error("Function " + functionName + " is already declared\n");
+            if(find(functions, functionName)) {
+                throw func_already_def(functionName);
             }
             functions[funcDeclNode->name] = node;
             node->nodeType = ROOT;
@@ -100,10 +97,20 @@ class Interpreter {
         if(node->nodeType == FUNC_CALL) {
             auto *funcCallNode = dynamic_cast<FunctionCallNode*>(node);
             std::string functionName = funcCallNode->name;
-            if(functions.find(functionName) == functions.end()) {
-                throw std::runtime_error("Function " + functionName + " is not defined\n");
+            if(not_find(functions, functionName)) {
+                throw fuc_not_def(functionName);
             }
             eval(functions[functionName]);
+        }
+        if(node->nodeType == ADD) {
+            auto *additionNode = dynamic_cast<AdditionNode*>(node);
+            std::string value = additionNode->value;
+            std::string receiver = additionNode->receiver;
+            int extraValue = getValue(value);
+            if(not_find(variables, receiver)) {
+                throw undefined_variable(receiver);
+            }
+            variables[receiver] += extraValue;
         }
     }
 
@@ -141,4 +148,3 @@ public:
 
 std::unordered_map<std::string, int> Interpreter::variables;
 std::unordered_map<std::string, Node*> Interpreter::functions;
-#endif
