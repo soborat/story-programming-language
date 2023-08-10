@@ -32,7 +32,7 @@ int getNumber(const std::string &number) {
 
 
 enum NodeType {
-    ROOT, LET, FOR, IF, SAY, READ, FUNC_DECL, FUNC_CALL
+    ROOT, LET, FOR, IF, ELSE, SAY, READ, FUNC_DECL, FUNC_CALL
 };
 
 std::string enumToString(NodeType value) {
@@ -41,6 +41,7 @@ std::string enumToString(NodeType value) {
             {LET, "LET"},
             {FOR, "FOR"},
             {IF, "IF"},
+            {ELSE, "ELSE"},
             {SAY, "SAY"},
             {READ, "READ"},
             {FUNC_DECL, "FUNC_DECL"},
@@ -112,6 +113,7 @@ class IfNode : public Node {
 public:
     std::string variable;
     std::string condition;
+    std::vector<Node*>* elseBody;
 
     explicit IfNode(const std::vector<std::string> &words) {
         if (words.size() != 4 || words[2] != "is" || (words[3] != "odd" && words[3] != "even")) {
@@ -120,6 +122,22 @@ public:
         nodeType = IF;
         variable = words[1];
         condition = words[3];
+        elseBody = nullptr;
+    }
+
+    void setElseBody(std::vector<Node*>& nodes) {
+        elseBody = &nodes;
+    }
+
+};
+
+class ElseNode : public Node {
+public:
+    explicit ElseNode(Node* node) {
+        if (node->nodeType != IF) {
+            throw std::runtime_error("Else without previous if\n");
+        }
+        nodeType = ELSE;
     }
 };
 
@@ -221,7 +239,7 @@ class Parser {
                 return false;
             }
             std::string word = split(strip(lines[i - 1]), ' ')[0];
-            bool increaseIndent = word == "for" || word == "if" || word == "function";
+            bool increaseIndent = word == "for" || word == "if" || word == "else" || word == "function";
 
             if (increaseIndent && indents[i] != indents[i - 1] + 4) {
                 return false;
@@ -249,7 +267,7 @@ public:
         Node *root = new Node{ROOT};
         std::stack<Node *> level;
         level.push(root);
-        std::vector<std::string> keywords = {"let", "say", "read", "if", "for", "function", "call"};
+        std::vector<std::string> keywords = {"let", "say", "read", "if", "else", "for", "function", "call"};
         for (int i = 0; i < lines.size(); i++) {
             std::vector<std::string> words = split(strip(lines[i]), ' ');
             int levelChange = 0;
@@ -264,34 +282,43 @@ public:
                 throw std::runtime_error("Unknown keyword: " + words[0] + '\n');
             }
             Node *node;
-            if (words[0] == "let") {
+            std::string task = words[0];
+            if (task == "let") {
                 node = new VariableNode(words);
                 level.top()->add(node);
             }
-            if (words[0] == "say") {
+            if (task == "say") {
                 node = new SayNode(words);
                 level.top()->add(node);
             }
-            if (words[0] == "read") {
+            if (task == "read") {
                 node = new ReadNode(words);
                 level.top()->add(node);
             }
-            if (words[0] == "if") {
+            if (task == "if") {
                 node = new IfNode(words);
                 level.top()->add(node);
                 level.push(node);
             }
-            if (words[0] == "for") {
+            if (task == "else") {
+                Node *prev = level.top()->body.back();
+                node = new ElseNode(prev);
+                auto *ifNode = dynamic_cast<IfNode*>(prev);
+                ifNode->setElseBody(node->body);
+                level.top()->add(node);
+                level.push(node);
+            }
+            if (task == "for") {
                 node = new ForNode(words);
                 level.top()->add(node);
                 level.push(node);
             }
-            if (words[0] == "function") {
+            if (task == "function") {
                 node = new FunctionDeclarationNode(words);
                 level.top()->add(node);
                 level.push(node);
             }
-            if(words[0] == "call") {
+            if(task == "call") {
                 node = new FunctionCallNode(words);
                 level.top()->add(node);
             }
@@ -299,6 +326,5 @@ public:
         return root;
     }
 };
-// TODO: release memory
 
 #endif

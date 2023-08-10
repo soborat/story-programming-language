@@ -1,24 +1,11 @@
-function Func
-    say three
-    say four
+function Fn
+    say zero
+    if zero is even
+        say one
 
-call Func//
-read Motan
-say Motan
-say two
-let A be five
-for every Number from one to five
-    for every Cat from eight to six
-        say Cat
-    call Func
-let Dog be fifty
-say Dog
-call Func
-
-function Caramel
-    say three
-    say five
-
-call Caramel
-say two
-call Caramel
+for every Dog from one to eight
+    if Dog is odd
+        say Dog
+    else
+        say two
+        call Fn

@@ -11,5 +11,6 @@ int main() {
     std::string content(std::istreambuf_iterator<char>(file), {});
     Node* root = Parser::parse(content);
     Interpreter::run(root);
+//    Interpreter::debug(root);
     return 0;
 }

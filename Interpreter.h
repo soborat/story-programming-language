@@ -45,10 +45,14 @@ class Interpreter {
         if (node->nodeType == IF) {
             auto *ifNode = dynamic_cast<IfNode *>(node);
             std::string variableName = ifNode->variable;
-            if (variables.find(variableName) == variables.end()) {
+            int value;
+            if (getNumber(variableName) != -1) {
+                value = getNumber(variableName);
+            } else if (variables.find(variableName) != variables.end()) {
+                value =  variables[variableName];
+            } else {
                 throw std::runtime_error("Variable " + variableName + " is not defined\n");
             }
-            int value = variables[variableName];
             bool condition;
             if (ifNode->condition == "odd") {
                 condition = value % 2 == 1;
@@ -57,6 +61,11 @@ class Interpreter {
             }
             if (condition) {
                 for (Node *n: node->body) {
+                    eval(n);
+                }
+            }
+            else if (!ifNode->elseBody->empty()) {
+                for(Node *n: *ifNode->elseBody) {
                     eval(n);
                 }
             }
