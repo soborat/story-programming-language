@@ -34,7 +34,15 @@ class Interpreter {
         if (node->nodeType == SAY) {
             auto *sayNode = dynamic_cast<SayNode *>(node);
             std::string variableName = sayNode->variable;
-            std::cout << getVariableOrConstant(variableName) << '\n';
+            if(variableName == "space") {
+                std::cout << ' ';
+            }
+            else if(variableName == "line") {
+                std::cout << '\n';
+            }
+            else {
+                std::cout << getVariableOrConstant(variableName);
+            }
         }
         if (node->nodeType == READ) {
             auto *readNode = dynamic_cast<ReadNode *>(node);
