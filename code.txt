@@ -1,4 +1,9 @@
 read A
 read B
 add B to A
+multiply A by four
+say A
+divide A by four
+add four to A
+
 say A

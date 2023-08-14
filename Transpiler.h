@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <string>
 #include "Parser.h"
-#include "exceptions.h"
+#include "Exceptions.h"
 
 class Transpiler {
 
@@ -42,11 +42,9 @@ class Transpiler {
             variables.push_back(variableNode->name);
             std::string value = variableNode->value;
             if(getConstant(value) != -1) {
-                write("%s = %d;", variableNode->name, getConstant(value));
+                value = std::to_string(getConstant(value));
             }
-            else {
-                write("%s = %s;", variableNode->name, value);
-            }
+            write("%s = %s;", variableNode->name, value);
         }
         if (node->nodeType == SAY) {
             auto *sayNode = dynamic_cast<SayNode *>(node);
@@ -84,6 +82,22 @@ class Transpiler {
                 value = std::to_string(getConstant(value));
             }
             write("%s = %s - %s;", subtractionNode->receiver, subtractionNode->receiver, value);
+        }
+        if(node->nodeType == MUL) {
+            auto *multiplicationNode = dynamic_cast<MultiplicationNode *>(node);\
+            std::string value = multiplicationNode->value;
+            if(getConstant(value) != -1) {
+                value = std::to_string(getConstant(value));
+            }
+            write("%s = %s * %s;", multiplicationNode->receiver, multiplicationNode->receiver, value);
+        }
+        if(node->nodeType == DIV) {
+            auto *divisionNode = dynamic_cast<DivisionNode *>(node);
+            std::string value = divisionNode->value;
+            if(getConstant(value) != -1) {
+                value = std::to_string(getConstant(value));
+            }
+            write("%s = %s / %s;", divisionNode->receiver, divisionNode->receiver, value);
         }
         if (node->nodeType == IF) {
             auto *ifNode = dynamic_cast<IfNode *>(node);

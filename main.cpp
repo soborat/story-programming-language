@@ -1,10 +1,8 @@
 #include <iostream>
 #include <fstream>
-#include <vector>
-#include <sstream>
 #include "Parser.h"
-#include "Interpreter.h"
 #include "Transpiler.h"
+#include "Interpreter.h"
 
 
 int main() {

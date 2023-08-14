@@ -4,14 +4,14 @@
 #include <unordered_map>
 #include <string>
 #include "Parser.h"
-#include "exceptions.h"
+#include "Exceptions.h"
 
 
 class Interpreter {
     static std::unordered_map<std::string, int> variables;
-    static std::unordered_map<std::string, Node*> functions;
+    static std::unordered_map<std::string, Node *> functions;
 
-    static int getVariableOrConstant(const std::string& str) {
+    static int getVariableOrConstant(const std::string &str) {
         if (getConstant(str) != -1) {
             return getConstant(str);
         } else if (find(variables, str)) {
@@ -37,11 +37,11 @@ class Interpreter {
             std::cout << getVariableOrConstant(variableName) << '\n';
         }
         if (node->nodeType == READ) {
-            auto *readNode = dynamic_cast<ReadNode*>(node);
+            auto *readNode = dynamic_cast<ReadNode *>(node);
             std::string variableName = readNode->variable;
             std::string str;
             std::cin >> str;
-            if(getConstant(str) == -1) {
+            if (getConstant(str) == -1) {
                 throw InvalidNumberError(str);
             }
             variables[variableName] = getConstant(str);
@@ -53,45 +53,42 @@ class Interpreter {
             std::string ifOperator = ifNode->ifOperator;
             std::string operand = ifNode->operand;
             bool condition;
-            if(ifOperator == "is") {
-                if(operand == "odd") {
+            if (ifOperator == "is") {
+                if (operand == "odd") {
                     condition = value % 2 == 1;
-                }
-                else {
+                } else {
                     condition = value % 2 == 0;
                 }
-            }
-            else {
+            } else {
                 int operandValue = getVariableOrConstant(operand);
-                if(ifOperator == "equals") {
+                if (ifOperator == "equals") {
                     condition = value == operandValue;
                 }
-                if(ifOperator == "not-equals") {
+                if (ifOperator == "not-equals") {
                     condition = value != operandValue;
                 }
-                if(ifOperator == "greater-than") {
+                if (ifOperator == "greater-than") {
                     condition = value > operandValue;
                 }
-                if(ifOperator == "greater-equal") {
+                if (ifOperator == "greater-equal") {
                     condition = value >= operandValue;
                 }
-                if(ifOperator == "lesser-than") {
+                if (ifOperator == "lesser-than") {
                     condition = value < operandValue;
                 }
-                if(ifOperator == "lesser-equal") {
+                if (ifOperator == "lesser-equal") {
                     condition = value <= operandValue;
                 }
-                if(ifOperator == "divisible-by") {
+                if (ifOperator == "divisible-by") {
                     condition = value % operandValue == 0;
                 }
             }
-            if(condition) {
-                for(Node *n: node->body) {
+            if (condition) {
+                for (Node *n: node->body) {
                     eval(n);
                 }
-            }
-            else if(ifNode->elseBody) {
-                for(Node *n: *ifNode->elseBody) {
+            } else if (ifNode->elseBody) {
+                for (Node *n: *ifNode->elseBody) {
                     eval(n);
                 }
             }
@@ -117,54 +114,84 @@ class Interpreter {
                 }
             }
         }
-        if(node->nodeType == FUNC_DECL) {
-            auto *funcDeclNode = dynamic_cast<FunctionDeclarationNode*>(node);
+        if (node->nodeType == FUNC_DECL) {
+            auto *funcDeclNode = dynamic_cast<FunctionDeclarationNode *>(node);
             std::string functionName = funcDeclNode->name;
-            if(find(functions, functionName)) {
+            if (find(functions, functionName)) {
                 throw FuncAlreadyDefError(functionName);
             }
             functions[funcDeclNode->name] = node;
             node->nodeType = ROOT;
         }
-        if(node->nodeType == FUNC_CALL) {
-            auto *funcCallNode = dynamic_cast<FunctionCallNode*>(node);
+        if (node->nodeType == FUNC_CALL) {
+            auto *funcCallNode = dynamic_cast<FunctionCallNode *>(node);
             std::string functionName = funcCallNode->name;
-            if(not_find(functions, functionName)) {
+            if (not_find(functions, functionName)) {
                 throw FucNotDefError(functionName);
             }
             functions[functionName]->nodeType = ROOT;
             eval(functions[functionName]);
             functions[functionName]->nodeType = FUNC_DECL;
         }
-        if(node->nodeType == ADD) {
-            auto *additionNode = dynamic_cast<AdditionNode*>(node);
+        if (node->nodeType == ADD) {
+            auto *additionNode = dynamic_cast<AdditionNode *>(node);
             std::string value = additionNode->value;
             std::string receiver = additionNode->receiver;
             int extraValue = getVariableOrConstant(value);
             int receiverValue = getVariableOrConstant(receiver);
-            if(not_find(variables, receiver)) {
+            if (not_find(variables, receiver)) {
                 throw UndefinedVariableError(receiver);
             }
 
             receiverValue += extraValue;
-            if(receiverValue > 99) {
+            if (receiverValue > 99) {
                 throw OutOfBoundsValueError(receiverValue);
             }
             variables[receiver] = receiverValue;
         }
-        if(node->nodeType == SUB) {
-            auto *subtractionNode = dynamic_cast<SubtractionNode*>(node);
+        if (node->nodeType == SUB) {
+            auto *subtractionNode = dynamic_cast<SubtractionNode *>(node);
             std::string value = subtractionNode->value;
             std::string receiver = subtractionNode->receiver;
             int subtractValue = getVariableOrConstant(value);
             int receiverValue = getVariableOrConstant(receiver);
-            if(not_find(variables, receiver)) {
+            if (not_find(variables, receiver)) {
                 throw UndefinedVariableError(receiver);
             }
             receiverValue -= subtractValue;
-            if(receiverValue < 0) {
+            if (receiverValue < 0) {
                 throw OutOfBoundsValueError(receiverValue);
             }
+            variables[receiver] = receiverValue;
+        }
+        if (node->nodeType == MUL) {
+            auto *multiplicationNode = dynamic_cast<MultiplicationNode *>(node);
+            std::string value = multiplicationNode->value;
+            std::string receiver = multiplicationNode->receiver;
+            int multiplierValue = getVariableOrConstant(value);
+            int receiverValue = getVariableOrConstant(receiver);
+            if (not_find(variables, receiver)) {
+                throw UndefinedVariableError(receiver);
+            }
+            receiverValue *= multiplierValue;
+            if (receiverValue > 99) {
+                throw OutOfBoundsValueError(receiverValue);
+            }
+            variables[receiver] = receiverValue;
+        }
+        if (node->nodeType == DIV) {
+            auto *divisionNode = dynamic_cast<DivisionNode *>(node);
+            std::string value = divisionNode->value;
+            std::string receiver = divisionNode->receiver;
+            int dividerValue = getVariableOrConstant(value);
+            int receiverValue = getVariableOrConstant(receiver);
+            if (not_find(variables, receiver)) {
+                throw UndefinedVariableError(receiver);
+            }
+            if (dividerValue == 0) {
+                throw DivisionByZeroError();
+            }
+            receiverValue /= dividerValue;
             variables[receiver] = receiverValue;
         }
     }
@@ -190,9 +217,8 @@ public:
             debug(node);
         }
         std::cout << ")";
-        // ROOT(LET()FOR(IF(SAY())IF(SAY())FOR(FOR(SAY()))))
     }
-    // todo: ><==!=, break into files
+
     static void run(Node *node) {
         eval(node);
         releaseMemory(node);
@@ -200,4 +226,4 @@ public:
 };
 
 std::unordered_map<std::string, int> Interpreter::variables;
-std::unordered_map<std::string, Node*> Interpreter::functions;
+std::unordered_map<std::string, Node *> Interpreter::functions;

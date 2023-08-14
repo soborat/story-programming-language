@@ -37,19 +37,19 @@ CustomException UnknownKeywordError(const std::string &str) {
 }
 
 CustomException VarDeclError() {
-    return CustomException("Wrong variable declaration, example: let A be five\n");
+    return CustomException("Wrong variable declaration, example: let N be five\n");
 }
 
 CustomException SayError() {
-    return CustomException("Wrong say statement, example: say Number\n");
+    return CustomException("Wrong say statement, example: say N\n");
 }
 
 CustomException ReadError() {
-    return CustomException("Wrong read statement, example: read Number\n");
+    return CustomException("Wrong read statement, example: read N\n");
 }
 
 CustomException IfError() {
-    return CustomException("Wrong if statement, example: if Number greater-equal eight\n");
+    return CustomException("Wrong if statement, example: if N greater-equal eight\n");
 }
 
 CustomException ElseError() {
@@ -57,7 +57,7 @@ CustomException ElseError() {
 }
 
 CustomException ForError() {
-    return CustomException("Wrong for statement, example: for every Number from one to fifteen\n");
+    return CustomException("Wrong for statement, example: for every N from one to fifteen\n");
 }
 
 CustomException AdditionError() {
@@ -65,7 +65,19 @@ CustomException AdditionError() {
 }
 
 CustomException SubtractionError() {
-    return CustomException("Wrong subtraction, example: subtract four from Number");
+    return CustomException("Wrong subtraction, example: subtract four from N");
+}
+
+CustomException MultiplicationError() {
+    return CustomException("Wrong multiplication, example: multiply N by four");
+}
+
+CustomException DivisionError() {
+    return CustomException("Wrong division, example: divide N by four");
+}
+
+CustomException DivisionByZeroError() {
+    return CustomException("Wrong multiplication, example: multiply N by four");
 }
 
 CustomException IndentError() {
