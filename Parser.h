@@ -22,7 +22,7 @@ std::unordered_map<std::string, int> generateNumbers() {
     return m;
 }
 
-int getNumber(const std::string &number) {
+int getConstant(const std::string &number) {
     static std::unordered_map<std::string, int> allNumbers = generateNumbers();
     if (find(allNumbers, number)) {
         return allNumbers[number];
@@ -32,8 +32,12 @@ int getNumber(const std::string &number) {
 
 
 enum NodeType {
-    ROOT, LET, FOR, IF, ELSE, SAY, READ, FUNC_DECL, FUNC_CALL, ADD
+    ROOT, LET, FOR, IF, ELSE, SAY, READ, FUNC_DECL, FUNC_CALL, ADD, SUB, MUL, DIV, MOD
 };
+
+std::vector<std::string> keywords = {"let", "say", "read", "if", "else", "for", "function", "call", "add", "subtract"};
+std::vector<std::string> ifOperators = {"is", "equals", "not-equals", "greater-than", "greater-equal", "lesser-than",  "lesser-equal"};
+
 
 std::string enumToString(NodeType value) {
     static std::unordered_map<NodeType, std::string> enumMap = {
@@ -46,7 +50,8 @@ std::string enumToString(NodeType value) {
             {READ, "READ"},
             {FUNC_DECL, "FUNC_DECL"},
             {FUNC_CALL, "FUNC_CALL"},
-            {ADD, "ADD"}
+            {ADD, "ADD"},
+            {SUB, "SUB"}
     };
     if(find(enumMap, value)) {
         return enumMap[value];
@@ -72,12 +77,12 @@ public:
     int value;
 
     explicit VariableNode(const std::vector<std::string> &words) {
-        if (words.size() != 4 || std::islower(words[1][0]) || words[2] != "be" || getNumber(words[3]) == -1) {
-            throw var_decl();
+        if (words.size() != 4 || std::islower(words[1][0]) || words[2] != "be" || getConstant(words[3]) == -1) {
+            throw VarDeclError();
         }
         nodeType = LET;
         name = words[1];
-        value = getNumber(words[3]);
+        value = getConstant(words[3]);
     }
 };
 
@@ -87,7 +92,7 @@ public:
 
     explicit SayNode(const std::vector<std::string> &words) {
         if (words.size() != 2) {
-            throw std::runtime_error("Wrong say statement, example: say Number\n");
+            throw SayError();
         }
         nodeType = SAY;
         variable = words[1];
@@ -100,7 +105,7 @@ public:
 
     explicit ReadNode(const std::vector<std::string> &words) {
         if(words.size() != 2) {
-            throw std::runtime_error("Wrong read statement, example: read Number\n");
+            throw ReadError();
         }
         nodeType = READ;
         variable = words[1];
@@ -110,16 +115,21 @@ public:
 class IfNode : public Node {
 public:
     std::string variable;
-    std::string condition;
+    std::string ifOperator;
+    std::string operand;
     std::vector<Node*>* elseBody;
 
     explicit IfNode(const std::vector<std::string> &words) {
-        if (words.size() != 4 || words[2] != "is" || (words[3] != "odd" && words[3] != "even")) {
-            throw std::runtime_error("Wrong if statement, example: if Number is odd\n");
+        if (words.size() != 4 || not_find(ifOperators, words[2])) {
+            throw IfError();
+        }
+        if(words[2] == "is" && not_find({"even", "odd"}, words[3])) {
+            throw IfError();
         }
         nodeType = IF;
         variable = words[1];
-        condition = words[3];
+        ifOperator = words[2];
+        operand = words[3];
         elseBody = nullptr;
     }
 
@@ -133,7 +143,7 @@ class ElseNode : public Node {
 public:
     explicit ElseNode(Node* node) {
         if (node->nodeType != IF) {
-            throw std::runtime_error("Else without previous if\n");
+            throw ElseError();
         }
         nodeType = ELSE;
     }
@@ -142,20 +152,18 @@ public:
 class ForNode : public Node {
 public:
     std::string variable;
-    int start;
-    int stop;
+    std::string start;
+    std::string stop;
 
     explicit ForNode(const std::vector<std::string> &words) {
         if (words.size() != 7 || words[1] != "every" || words[3] != "from" || words[5] != "to" ||
-            getNumber(words[4]) == -1 ||
-            getNumber(words[6]) == -1 ||
             std::islower(words[2][0])) {
-            throw std::runtime_error("Wrong for statement, example: for every Number from one to fifteen\n");
+            throw ForError();
         }
         nodeType = FOR;
         variable = words[2];
-        start = getNumber(words[4]);
-        stop = getNumber(words[6]);
+        start = words[4];
+        stop = words[6];
     }
 };
 
@@ -164,7 +172,7 @@ public:
     std::string name;
     explicit FunctionDeclarationNode(const std::vector<std::string> &words) {
         if(words.size() != 2 || std::islower(words[1][0])) {
-            throw std::runtime_error("Wrong function declaration, example: function Fn\n");
+            throw FuncDeclError();
         }
         nodeType = FUNC_DECL;
         name = words[1];
@@ -176,7 +184,7 @@ public:
     std::string name;
     explicit FunctionCallNode(const std::vector<std::string> &words) {
         if(words.size() != 2 || std::islower(words[1][0])) {
-            throw std::runtime_error("Wrong function call, example: call Fn\n");
+            throw FuncCallError();
         }
         nodeType = FUNC_CALL;
         name = words[1];
@@ -189,9 +197,23 @@ public:
     std::string value;
     explicit AdditionNode(const std::vector<std::string> &words) {
         if(words.size() != 4 || words[2] != "to" || std::islower(words[3][0])) {
-            throw std::runtime_error("Wrong addition, example: add four to Number\n");
+            throw AdditionError();
         }
         nodeType = ADD;
+        value = words[1];
+        receiver = words[3];
+    }
+};
+
+class SubtractionNode : public Node {
+public:
+    std::string receiver;
+    std::string value;
+    explicit SubtractionNode(const std::vector<std::string> &words) {
+        if(words.size() != 4 || words[2] != "from" || std::islower(words[3][0])) {
+            throw SubtractionError();
+        }
+        nodeType = SUB;
         value = words[1];
         receiver = words[3];
     }
@@ -274,12 +296,11 @@ public:
         lines = removeCommentLines(lines);
         std::vector<int> indents = getIndents(lines);
         if (!checkIndent(lines, indents)) {
-            throw std::runtime_error("Change code to Python style 4 spaces indent\n");
+            throw IndentError();
         }
         Node *root = new Node{ROOT};
         std::stack<Node *> level;
         level.push(root);
-        std::vector<std::string> keywords = {"let", "say", "read", "if", "else", "for", "function", "call", "add"};
         for (int i = 0; i < lines.size(); i++) {
             std::vector<std::string> words = split(strip(lines[i]), ' ');
             std::string task = words[0];
@@ -292,7 +313,7 @@ public:
                 levelChange--;
             }
             if (not_find(keywords, task)) {
-                throw unknown_keyword(task);
+                throw UnknownKeywordError(task);
             }
             Node *node;
             if (task == "let") {
@@ -336,6 +357,10 @@ public:
             }
             if(task == "add") {
                 node = new AdditionNode(words);
+                level.top()->add(node);
+            }
+            if(task == "subtract") {
+                node = new SubtractionNode(words);
                 level.top()->add(node);
             }
         }

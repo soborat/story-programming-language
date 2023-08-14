@@ -1,8 +1,8 @@
-let Dog be zero
-add five to Dog
-add three to Dog
-say Dog
-
-for every I from one to five
-    add one to Dog
-    say Dog
+for every Number from two to thirty
+    if Number is odd
+        if Number lesser-than fifteen
+            say Number
+            say line
+        else
+            say zero
+            say space
