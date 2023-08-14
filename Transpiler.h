@@ -13,11 +13,19 @@
 class Transpiler {
 
     static std::string code;
+    static std::string functions;
     static std::stack<std::string> indents;
+    static std::stack<bool> isFunction;
+    static std::vector<std::string> variables;
 
     template <typename... Args>
     static void write(const char* format, Args... args) {
-        code += indents.top() + fmt(format, args...) + "\n";
+        if(isFunction.top()) {
+            functions += indents.top() + fmt(format, args...) + "\n";
+        }
+        else {
+            code += indents.top() + fmt(format, args...) + "\n";
+        }
     }
 
     static void translate(Node *node, int indentValue=0) {
@@ -31,7 +39,14 @@ class Transpiler {
         }
         if (node->nodeType == LET) {
             auto *variableNode = dynamic_cast<VariableNode *>(node);
-            write("int %s = %d;", variableNode->name, variableNode->value);
+            variables.push_back(variableNode->name);
+            std::string value = variableNode->value;
+            if(getConstant(value) != -1) {
+                write("%s = %d;", variableNode->name, getConstant(value));
+            }
+            else {
+                write("%s = %s;", variableNode->name, value);
+            }
         }
         if (node->nodeType == SAY) {
             auto *sayNode = dynamic_cast<SayNode *>(node);
@@ -49,29 +64,40 @@ class Transpiler {
         }
         if (node->nodeType == READ) {
             auto *readNode = dynamic_cast<ReadNode *>(node);
+            if(not_find(variables, readNode->variable)) {
+                variables.emplace_back(readNode->variable);
+            }
             write("cin >> %s;", readNode->variable);
         }
         if (node->nodeType == ADD) {
             auto *additionNode = dynamic_cast<AdditionNode *>(node);
-            write("%s = %s + %s;", additionNode->receiver, additionNode->receiver,
-                        additionNode->value);
+            std::string value = additionNode->value;
+            if(getConstant(value) != -1) {
+                value = std::to_string(getConstant(value));
+            }
+            write("%s = %s + %s;", additionNode->receiver, additionNode->receiver, value);
         }
         if (node->nodeType == SUB) {
             auto *subtractionNode = dynamic_cast<SubtractionNode *>(node);
-            write("%s = %s - %s;", subtractionNode->receiver, subtractionNode->receiver,
-                        subtractionNode->value);
+            std::string value = subtractionNode->value;
+            if(getConstant(value) != -1) {
+                value = std::to_string(getConstant(value));
+            }
+            write("%s = %s - %s;", subtractionNode->receiver, subtractionNode->receiver, value);
         }
         if (node->nodeType == IF) {
             auto *ifNode = dynamic_cast<IfNode *>(node);
-            std::string condition;
             if(ifNode->ifOperator == "is") {
-                if(ifNode->operand == "odd") {
+                std::string condition;
+                if (ifNode->operand == "odd") {
                     condition = "% 2 == 1";
-                }
-                else {
+                } else {
                     condition = "% 2 == 0";
                 }
                 write("if (%s %s) {", ifNode->variable, condition);
+            }
+            else if(ifNode->ifOperator == "divisible-by") {
+                write("if (%s %% %s == 0) {", ifNode->variable, ifNode->operand);
             }
             else {
                 static std::unordered_map<std::string, std::string> operators = {
@@ -111,12 +137,13 @@ class Transpiler {
             if(getConstant(stop) != -1) {
                 stop = std::to_string(getConstant(stop));
             }
+            variables.push_back(variable);
             if(start <= stop) {
-                write("for (int %s = %s; %s <= %s; %s++) {",
+                write("for (%s = %s; %s <= %s; %s++) {",
                             variable, start, variable, stop, variable);
             }
             else {
-                write("for (int %s = %s; %s >= %s; %s--) {",
+                write("for (%s = %s; %s >= %s; %s--) {",
                             variable, start, variable, stop, variable);
             }
             for (Node *n: node->body) {
@@ -126,11 +153,17 @@ class Transpiler {
         }
         if(node->nodeType == FUNC_DECL) {
             auto *funcDeclNode = dynamic_cast<FunctionDeclarationNode*>(node);
+            isFunction.emplace(true);
+            indents.emplace("");
+            indentValue = 0;
             write("void %s() {", funcDeclNode->name);
             for (Node *n: node->body) {
                 translate(n, indentValue + 1);
             }
-            write("}");
+            write("}\n");
+            isFunction.pop();
+            indents.pop();
+
         }
         if(node->nodeType == FUNC_CALL) {
             auto *funcCallNode = dynamic_cast<FunctionCallNode*>(node);
@@ -148,6 +181,7 @@ class Transpiler {
 
     static void releaseMemory(Node *node) {
         deleteNode(node);
+        variables.clear();
         while(!indents.empty()) {
             indents.pop();
         }
@@ -156,7 +190,24 @@ class Transpiler {
 public:
     static void run(Node *node) {
         indents.emplace("");
+        isFunction.push(false);
         translate(node);
+        std::string codeStart = "#include <iostream>\nusing namespace std;\n\n";
+        if(!variables.empty()) {
+            codeStart += "int ";
+            for(int i = 0; i < variables.size(); i++) {
+                codeStart += variables[i];
+                if(i != variables.size() - 1) {
+                    codeStart += ", ";
+                }
+            }
+            codeStart += ";\n\n";
+        }
+        if(!functions.empty()) {
+            codeStart += functions + "\n";
+        }
+        codeStart += "int main() ";
+        code = codeStart + code;
         releaseMemory(node);
     }
     static std::string getCode() {
@@ -164,5 +215,8 @@ public:
     }
 };
 
-std::string Transpiler::code = "#include <iostream>\nusing namespace std;\n\nint main()\n";
+std::string Transpiler::code;
+std::string Transpiler::functions;
 std::stack<std::string> Transpiler::indents;
+std::stack<bool> Transpiler::isFunction;
+std::vector<std::string> Transpiler::variables;

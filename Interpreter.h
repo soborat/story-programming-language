@@ -29,7 +29,7 @@ class Interpreter {
         }
         if (node->nodeType == LET) {
             auto *variableNode = dynamic_cast<VariableNode *>(node);
-            variables[variableNode->name] = variableNode->value;
+            variables[variableNode->name] = getVariableOrConstant(variableNode->value);
         }
         if (node->nodeType == SAY) {
             auto *sayNode = dynamic_cast<SayNode *>(node);
@@ -81,13 +81,16 @@ class Interpreter {
                 if(ifOperator == "lesser-equal") {
                     condition = value <= operandValue;
                 }
+                if(ifOperator == "divisible-by") {
+                    condition = value % operandValue == 0;
+                }
             }
             if(condition) {
                 for(Node *n: node->body) {
                     eval(n);
                 }
             }
-            else if(!ifNode->elseBody->empty()) {
+            else if(ifNode->elseBody) {
                 for(Node *n: *ifNode->elseBody) {
                     eval(n);
                 }
@@ -129,7 +132,9 @@ class Interpreter {
             if(not_find(functions, functionName)) {
                 throw FucNotDefError(functionName);
             }
+            functions[functionName]->nodeType = ROOT;
             eval(functions[functionName]);
+            functions[functionName]->nodeType = FUNC_DECL;
         }
         if(node->nodeType == ADD) {
             auto *additionNode = dynamic_cast<AdditionNode*>(node);

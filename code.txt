@@ -1,8 +1,4 @@
-for every Number from two to thirty
-    if Number is odd
-        if Number lesser-than fifteen
-            say Number
-            say line
-        else
-            say zero
-            say space
+read A
+read B
+add B to A
+say A

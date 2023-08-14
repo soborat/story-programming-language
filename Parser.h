@@ -36,7 +36,7 @@ enum NodeType {
 };
 
 std::vector<std::string> keywords = {"let", "say", "read", "if", "else", "for", "function", "call", "add", "subtract"};
-std::vector<std::string> ifOperators = {"is", "equals", "not-equals", "greater-than", "greater-equal", "lesser-than",  "lesser-equal"};
+std::vector<std::string> ifOperators = {"is", "equals", "not-equals", "greater-than", "greater-equal", "lesser-than",  "lesser-equal", "divisible-by"};
 
 
 std::string enumToString(NodeType value) {
@@ -74,15 +74,22 @@ public:
 class VariableNode : public Node {
 public:
     std::string name;
-    int value;
+    std::string value;
 
     explicit VariableNode(const std::vector<std::string> &words) {
-        if (words.size() != 4 || std::islower(words[1][0]) || words[2] != "be" || getConstant(words[3]) == -1) {
+        if(words.size() == 2 && std::isupper(words[1][0])) {
+            nodeType = LET;
+            name = words[1];
+            value = "zero";
+        }
+        else if (words.size() == 4 && std::isupper(words[1][0]) && words[2] == "be") {
+            nodeType = LET;
+            name = words[1];
+            value = words[3];
+        }
+        else {
             throw VarDeclError();
         }
-        nodeType = LET;
-        name = words[1];
-        value = getConstant(words[3]);
     }
 };
 
