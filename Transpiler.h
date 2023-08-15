@@ -39,7 +39,9 @@ class Transpiler {
         }
         if (node->nodeType == LET) {
             auto *variableNode = dynamic_cast<VariableNode *>(node);
-            variables.push_back(variableNode->name);
+            if(not_find(variables, variableNode->name)) {
+                variables.push_back(variableNode->name);
+            }
             std::string value = variableNode->value;
             if(getConstant(value) != -1) {
                 value = std::to_string(getConstant(value));
@@ -151,7 +153,9 @@ class Transpiler {
             if(getConstant(stop) != -1) {
                 stop = std::to_string(getConstant(stop));
             }
-            variables.push_back(variable);
+            if(not_find(variables, variable)) {
+                variables.push_back(variable);
+            }
             if(start <= stop) {
                 write("for (%s = %s; %s <= %s; %s++) {",
                             variable, start, variable, stop, variable);
@@ -196,8 +200,12 @@ class Transpiler {
     static void releaseMemory(Node *node) {
         deleteNode(node);
         variables.clear();
+        functions.clear();
         while(!indents.empty()) {
             indents.pop();
+        }
+        while(!isFunction.empty()) {
+            isFunction.pop();
         }
     }
 
@@ -225,7 +233,9 @@ public:
         releaseMemory(node);
     }
     static std::string getCode() {
-        return code;
+        std::string copy(code);
+        code.clear();
+        return copy;
     }
 };
 
