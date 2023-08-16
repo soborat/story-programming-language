@@ -3,8 +3,26 @@
 #include <iostream>
 #include <unordered_map>
 #include <string>
+#include <emscripten.h>
 #include "Parser.h"
 #include "Exceptions.h"
+
+using namespace emscripten;
+
+EM_JS(const char*, getInputFromUser_JS, (), {
+    var input = prompt("Please enter a value:");
+    var lengthBytes = lengthBytesUTF8(input) + 1;
+    var stringOnWasmHeap = _malloc(lengthBytes);
+    stringToUTF8(input, stringOnWasmHeap, lengthBytes);
+    return stringOnWasmHeap;
+});
+
+std::string getInput() {
+    char* inputChar = (char*)getInputFromUser_JS();
+    std::string inputStr = std::string(inputChar);
+    free(inputChar);
+    return strip(inputStr);
+}
 
 
 class Interpreter {
@@ -49,7 +67,7 @@ class Interpreter {
             auto *readNode = dynamic_cast<ReadNode *>(node);
             std::string variableName = readNode->variable;
             std::string str;
-            std::cin >> str;
+            str = getInput();
             if (getConstant(str) == -1) {
                 throw InvalidNumberError(str);
             }
