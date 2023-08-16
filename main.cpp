@@ -7,31 +7,47 @@
 
 using namespace emscripten;
 
-std::string transpileCode(const std::string &code) {
-    Node* root = Parser::parse(code);
-    Transpiler::run(root);
-    return Transpiler::getCode();
+struct CodeResult {
+    std::string output;
+    bool ok;
+
+    CodeResult() : output(""), ok(false) {}
+
+    CodeResult(const std::string &o, bool k) : output(o), ok(k) {}
+};
+
+CodeResult transpileCode(const std::string &code) {
+    try {
+        Parser parser;
+        Node *root = parser.parse(code);
+        Transpiler transpiler;
+        transpiler.run(root);
+        return {transpiler.getCode(), true};
+    }
+    catch (std::exception &e) {
+        return {e.what(), false};
+    }
 }
 
-std::string runCode(const std::string &code) {
-    Node* root = Parser::parse(code);
-    Interpreter::run(root);
-    //todo: make interpreter return instead of cout, show errors with red, strip "custom exception",
-    //todo: change btn colors, change onhover color,
-    //todo: make .right editable when "read"
-}
-
-int main() {
-//    std::ifstream file("code.txt");
-//    std::string content(std::istreambuf_iterator<char>(file), {});
-//    Node* root = Parser::parse(content);
-//    Interpreter::run(root);
-//    Transpiler::run(root);
-//    std::cout << Transpiler::getCode();
-//    Interpreter::debug(root);
-
+CodeResult runCode(const std::string &code) {
+    try {
+        Parser parser;
+        Node *root = parser.parse(code);
+        Interpreter interpreter;
+        interpreter.run(root);
+        return {interpreter.getResult(), true};
+    } catch (std::exception &e) {
+        return {e.what(), false};
+    }
 }
 
 EMSCRIPTEN_BINDINGS(my_module) {
-    function("transpileCode", &transpileCode);
+        value_object<CodeResult>("RunCodeResult")
+                .field("output", &CodeResult::output)
+                .field("ok", &CodeResult::ok);
+        function("transpileCode", &transpileCode);
+        function("runCode", &runCode);
 }
+
+int main() {}
+

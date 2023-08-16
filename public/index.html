@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Language Transpiler</title>
+    <title>Language</title>
+    <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -107,12 +108,12 @@
             margin-bottom: 0.5em;
         }
 
-        .left {
+        .left, .right {
             outline: none;
         }
 
-        .right {
-            white-space: pre;
+        .exception {
+            color: red;
         }
 
         .actions {
@@ -123,19 +124,19 @@
         }
 
         button.tutorial-btn {
-            background-color: #3f87a6;
+            background-color: #4A90E2;
         }
 
         button.transpile-btn {
-            background-color: #e84855;
+            background-color: #FF5733;
         }
 
         button.run-btn {
-            background-color: orange;
+            background-color: #4CAF50;
         }
 
         button:hover {
-            background-color: #777;
+            filter: brightness(90%);
         }
     </style>
 </head>
@@ -145,17 +146,19 @@
         <button class="new-tab" onclick="createNewTab()">+</button>
     </div>
     <div class="panels-container">
-        <textarea class="panel left" contenteditable="true"></textarea>
+        <textarea class="panel left"></textarea>
         <div class="actions">
-            <button class="transpile-btn" onclick="transpile()">Transpile</button>
             <button class="tutorial-btn" onclick="navigateToTutorial()">Tutorial</button>
-            <button class="run-btn" onclick="run()">Run</button>
+            <button class="transpile-btn" onclick="transpile()">Transpile to C++</button>
+            <button class="run-btn" onclick="runCode()">Run</button>
         </div>
-        <div class="panel right" contenteditable="false"></div>
+        <textarea class="panel right" readonly></textarea>
     </div>
 </div>
 <script src="main.js"></script>
 <script>
+    const leftPanel = document.querySelector('.panel.left');
+    const rightPanel = document.querySelector('.panel.right');
     let currentTab = 0;
     const files = localStorage.getItem('files')
         ? JSON.parse(localStorage.getItem('files'))
@@ -172,12 +175,12 @@
     window.onload = function () {
         loadTabs();
         if (files[currentTab]) {
-            document.querySelector('.panel.left').value = files[currentTab].content;
+            leftPanel.value = files[currentTab].content;
         }
     };
 
     function navigateToTutorial() {
-        window.open('tutorial.txt', '_blank');
+        window.open('tutorial.html', '_blank');
     }
 
     function loadTabs() {
@@ -201,7 +204,7 @@
                         files.splice(index, 1);
                         if(currentTab === index) {
                             currentTab = 0;
-                            document.querySelector('.panel.left').value = files[currentTab].content;
+                            leftPanel.value = files[currentTab].content;
                         }
                         document.querySelectorAll('.file-tab').forEach((node) => node.remove());
                         loadTabs();
@@ -239,43 +242,49 @@
         document.querySelectorAll('.file-tab').forEach((tab) => tab.classList.remove('active'));
         tabElement.classList.add('active');
         currentTab = parseInt(tabElement.getAttribute('data-index'));
-        document.querySelector('.panel.left').value = files[currentTab].content;
+        leftPanel.value = files[currentTab].content;
     }
 
     function transpile() {
-        let code = document.querySelector('.panel.left').value;
+        let code = leftPanel.value;
         let res = Module.transpileCode(code);
-        res = res.replace(/</g, '&lt;');
-        res = res.replace(/>/g, '&gt;');
-
-        document.querySelector('.panel.right').innerHTML = res;
+        res.output = res.output.replace(/</g, '&lt;');
+        res.output = res.output.replace(/>/g, '&gt;');
+        if(res.ok) {
+            rightPanel.classList.remove('exception');
+        }
+        else {
+            rightPanel.classList.add('exception');
+        }
+        rightPanel.innerHTML = res.output;
         saveAllFiles();
     }
     function runCode() {
-        let code = document.querySelector('.panel.left').value;
-        // let res = Module.transpileCode(code);
-        // res = res.replace(/</g, '&lt;');
-        // res = res.replace(/>/g, '&gt;');
-        // document.querySelector('.panel.right').innerHTML = res;
+        let code = leftPanel.value;
+        let res = Module.runCode(code);
+        if(res.ok) {
+            rightPanel.classList.remove('exception');
+        }
+        else {
+            rightPanel.classList.add('exception');
+        }
+        document.querySelector('.panel.right').innerHTML = res.output;
         saveAllFiles();
     }
 
     document.querySelector(".panel.left").addEventListener('keydown', function (e) {
-        if (e.keyCode === 9) {  // 9 is the keycode for the Tab key
+        if (e.keyCode === 9) {
             e.preventDefault();
 
-            // For cross-browser compatibility (especially Firefox)
             if (document.execCommand && typeof document.execCommand === "function") {
-                document.execCommand('insertText', false, '    ');  // inserts four spaces
+                document.execCommand('insertText', false, '    ');
             } else {
-                // If execCommand is not supported, fall back to previous method
                 const selection = window.getSelection();
                 const range = selection.getRangeAt(0);
                 range.deleteContents();
                 const node = document.createTextNode('    ');
                 range.insertNode(node);
 
-                // Move cursor after the inserted spaces
                 range.setStartAfter(node);
                 range.setEndAfter(node);
                 selection.removeAllRanges();
@@ -285,7 +294,7 @@
     });
 
     function saveAllFiles() {
-        files[currentTab].content = document.querySelector('.panel.left').value;
+        files[currentTab].content = leftPanel.value;
         saveToLocalStorage();
     }
 

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        html, body {
+            background-color: #222222;
+            color: #f4f4f4;
+            font-family: Arial, sans-serif;
+        }
+
+        div {
+            margin: 50px 0;
+        }
+
+        p, li {
+            font-size: 18px;
+            margin: 8px 0;
+        }
+        pre {
+            display: inline-block;
+            font-size: 16px;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <h2>Rules</h2>
+    <ol>
+        <li>Identifiers must be capitalized</li>
+        <li>Numbers can be written only in letters, 57❌ fifty-seven✔️</li>
+        <li>Can't use numbers outside the range [zero, ninety-nine]</li>
+        <li>Indentation must be a multiple of 4</li>
+    </ol>
+</div>
+<div>
+    <h2>Variable declaration</h2>
+    <p><pre>let X</pre> (defaults as 0)</p>
+    <p><pre>let Y be ten</pre></p>
+    <p><pre>let Z be Y</pre></p>
+</div>
+<div>
+    <h2>Output</h2>
+    <p><pre>say X</pre></p>
+    <p><pre>say two</pre></p>
+    <p><pre>say space</pre> (evaluates as '&nbsp;&nbsp;')</p>
+    <p><pre>say line</pre> (evaluates as '\n')</p>
+</div>
+<div>
+    <h2>Input</h2>
+    <p><pre>read X</pre></p>
+</div>
+<div>
+    <h2>Arithmetic</h2>
+    <p><pre>add one to X</pre></p>
+    <p><pre>subtract one from X</pre></p>
+    <p><pre>multiply X by two</pre></p>
+    <p><pre>divide X by two</pre></p>
+</div>
+<div>
+    <h2>If statement</h2>
+    <p><pre>if X is odd</pre></p>
+    <p><pre>if X is even</pre></p>
+    <p><pre>if X equals nine</pre></p>
+    <p><pre>if X not-equals nine</pre></p>
+    <p><pre>if X is lesser-than nine</pre></p>
+    <p><pre>if X is greater-than nine</pre></p>
+    <p><pre>if X is lesser-equal nine</pre></p>
+    <p><pre>if X is greater-equal nine</pre></p>
+    <p><pre>if X is divisible-by nine</pre></p>
+
+</div>
+<div>
+    <h2>Else statement</h2>
+    <p><pre>if X is divisible-by nine</pre></p>
+    <p><pre>    say X</pre></p>
+    <p><pre>else</pre></p>
+    <p><pre>    say zero</pre></p>
+</div>
+<div>
+    <h2>For loop</h2>
+    <p><pre>for every N from five to Z</pre></p>
+    <p><pre>    for every M from Z to N</pre></p>
+</div>
+<div>
+    <h2>Comment</h2>
+    <p><pre>code//</pre></p>
+</div>
+<div>
+    <h2>Function declaration</h2>
+    <p><pre>function F</pre></p>
+    <p><pre>    say one</pre></p>
+</div>
+<div>
+    <h2>Function call</h2>
+    <p><pre>call F</pre></p>
+</div>
+<div>
+    <h2>Recursive Fibonacci sequence code example</h2>
+    <pre>
+let A be zero
+let B be one
+let N be one
+
+function F
+    let C be A
+    add B to C
+    let A be B
+    let B be C
+    say C
+    say space
+    add one to N
+    if N lesser-equal ten
+        call F
+
+call F
+    </pre>
+    <p>Output:</p>
+    <p><pre>1 2 3 5 8 13 21 34 55 89</pre></p>
+</div>
+</body>
+</html>

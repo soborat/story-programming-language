@@ -1,7 +1,0 @@
-function F
-    for every N from one to five
-        if N is odd
-            say N
-        else
-            say zero
-call F

@@ -27,7 +27,7 @@
 
 
 class Parser {
-    static std::vector<std::string> removeEmptyLines(const std::vector<std::string> &lines) {
+    std::vector<std::string> removeEmptyLines(const std::vector<std::string> &lines) {
         std::vector<std::string> newLines;
         for (const std::string &line: lines) {
             int spaces = 0;
@@ -43,7 +43,7 @@ class Parser {
         return newLines;
     }
 
-    static std::vector<std::string> removeCommentLines(const std::vector<std::string> &lines) {
+    std::vector<std::string> removeCommentLines(const std::vector<std::string> &lines) {
         std::vector<std::string> newLines;
         std::vector<std::string> comments;
         for (const std::string &line: lines) {
@@ -57,7 +57,7 @@ class Parser {
         return newLines;
     }
 
-    static std::vector<int> getIndents(const std::vector<std::string> &lines) {
+    std::vector<int> getIndents(const std::vector<std::string> &lines) {
         std::vector<int> indents;
         for (const std::string &line: lines) {
             int spaces = 0;
@@ -74,7 +74,7 @@ class Parser {
         return indents;
     }
 
-    static bool checkIndent(const std::vector<std::string> &lines, const std::vector<int> &indents) {
+    bool checkIndent(const std::vector<std::string> &lines, const std::vector<int> &indents) {
         for (int i = 1; i < indents.size(); i++) {
             if (indents[i] % 4 != 0 || indents[i] > indents[i - 1] + 4) {
                 return false;
@@ -96,7 +96,7 @@ class Parser {
     }
 
 public:
-    static Node *parse(const std::string &code) {
+    Node *parse(const std::string &code) {
         std::vector<std::string> lines = split(code, '\n');
         lines = removeEmptyLines(lines);
         lines = removeCommentLines(lines);
@@ -104,6 +104,7 @@ public:
         if (!checkIndent(lines, indents)) {
             throw IndentError();
         }
+
         Node *root = new Node{ROOT};
         std::stack<Node *> level;
         level.push(root);

@@ -8,10 +8,11 @@
 
 
 class Interpreter {
-    static std::unordered_map<std::string, int> variables;
-    static std::unordered_map<std::string, Node *> functions;
+    std::unordered_map<std::string, int> variables;
+    std::unordered_map<std::string, Node *> functions;
+    std::string result;
 
-    static int getVariableOrConstant(const std::string &str) {
+    int getVariableOrConstant(const std::string &str) {
         if (getConstant(str) != -1) {
             return getConstant(str);
         } else if (find(variables, str)) {
@@ -21,7 +22,7 @@ class Interpreter {
         }
     }
 
-    static void eval(Node *node) {
+    void eval(Node *node) {
         if (node->nodeType == ROOT) {
             for (Node *n: node->body) {
                 eval(n);
@@ -35,13 +36,13 @@ class Interpreter {
             auto *sayNode = dynamic_cast<SayNode *>(node);
             std::string variableName = sayNode->variable;
             if(variableName == "space") {
-                std::cout << ' ';
+                result += ' ';
             }
             else if(variableName == "line") {
-                std::cout << '\n';
+                result += '\n';
             }
             else {
-                std::cout << getVariableOrConstant(variableName);
+                result += std::to_string(getVariableOrConstant(variableName));
             }
         }
         if (node->nodeType == READ) {
@@ -125,9 +126,6 @@ class Interpreter {
         if (node->nodeType == FUNC_DECL) {
             auto *funcDeclNode = dynamic_cast<FunctionDeclarationNode *>(node);
             std::string functionName = funcDeclNode->name;
-            if (find(functions, functionName)) {
-                throw FuncAlreadyDefError(functionName);
-            }
             functions[funcDeclNode->name] = node;
             node->nodeType = ROOT;
         }
@@ -150,7 +148,6 @@ class Interpreter {
             if (not_find(variables, receiver)) {
                 throw UndefinedVariableError(receiver);
             }
-
             receiverValue += extraValue;
             if (receiverValue > 99) {
                 throw OutOfBoundsValueError(receiverValue);
@@ -204,21 +201,21 @@ class Interpreter {
         }
     }
 
-    static void deleteNode(Node *root) {
+    void deleteNode(Node *root) {
         for (Node *node: root->body) {
             deleteNode(node);
         }
         delete root;
     }
 
-    static void releaseMemory(Node *node) {
+    void releaseMemory(Node *node) {
         variables.clear();
         functions.clear();
         deleteNode(node);
     }
 
 public:
-    static void debug(Node *root) {
+    void debug(Node *root) {
         std::cout << enumToString(root->nodeType);
         std::cout << "(";
         for (Node *node: root->body) {
@@ -227,11 +224,13 @@ public:
         std::cout << ")";
     }
 
-    static void run(Node *node) {
+    void run(Node *node) {
         eval(node);
         releaseMemory(node);
     }
+    std::string getResult() {
+        std::string copy(result);
+        result.clear();
+        return copy;
+    }
 };
-
-std::unordered_map<std::string, int> Interpreter::variables;
-std::unordered_map<std::string, Node *> Interpreter::functions;

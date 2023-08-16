@@ -56,3 +56,5 @@ cmake-build-debug/.cmake/api/v1/reply/index-2023-08-14T15-05-57-0283.json
 cmake-build-debug/.cmake/api/v1/reply/target-untitled2-Debug-16b2b3786dc8bed61d2f.json
 
 .vercel
+public/main.js
+public/main.wasm

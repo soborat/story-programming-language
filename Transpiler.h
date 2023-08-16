@@ -1,7 +1,3 @@
-//
-// Created by ppint on 8/14/2023.
-//
-
 #pragma once
 
 #include <iostream>
@@ -12,14 +8,14 @@
 
 class Transpiler {
 
-    static std::string code;
-    static std::string functions;
-    static std::stack<std::string> indents;
-    static std::stack<bool> isFunction;
-    static std::vector<std::string> variables;
+    std::string code;
+    std::string functions;
+    std::stack<std::string> indents;
+    std::stack<bool> isFunction;
+    std::vector<std::string> variables;
 
     template <typename... Args>
-    static void write(const char* format, Args... args) {
+    void write(const char* format, Args... args) {
         if(isFunction.top()) {
             functions += indents.top() + fmt(format, args...) + "\n";
         }
@@ -28,7 +24,7 @@ class Transpiler {
         }
     }
 
-    static void translate(Node *node, int indentValue=0) {
+    void translate(Node *node, int indentValue=0) {
         indents.emplace(repeatString(" ", indentValue * 4));
         if (node->nodeType == ROOT) {
             write("{");
@@ -190,14 +186,14 @@ class Transpiler {
         indents.pop();
     }
 
-    static void deleteNode(Node *root) {
+    void deleteNode(Node *root) {
         for (Node *node: root->body) {
             deleteNode(node);
         }
         delete root;
     }
 
-    static void releaseMemory(Node *node) {
+    void releaseMemory(Node *node) {
         deleteNode(node);
         variables.clear();
         functions.clear();
@@ -210,7 +206,7 @@ class Transpiler {
     }
 
 public:
-    static void run(Node *node) {
+    void run(Node *node) {
         indents.emplace("");
         isFunction.push(false);
         translate(node);
@@ -232,15 +228,9 @@ public:
         code = codeStart + code;
         releaseMemory(node);
     }
-    static std::string getCode() {
+    std::string getCode() {
         std::string copy(code);
         code.clear();
         return copy;
     }
 };
-
-std::string Transpiler::code;
-std::string Transpiler::functions;
-std::stack<std::string> Transpiler::indents;
-std::stack<bool> Transpiler::isFunction;
-std::vector<std::string> Transpiler::variables;

@@ -81,7 +81,7 @@ CustomException DivisionByZeroError() {
 }
 
 CustomException IndentError() {
-    return CustomException("Change code to Python-style 4 spaces indent\n");
+    return CustomException("Indents must be a multiple of 4\n");
 }
 
 CustomException OutOfBoundsValueError(int x) {
