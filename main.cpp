@@ -41,7 +41,7 @@ CodeResult runCode(const std::string &code) {
     }
 }
 
-EMSCRIPTEN_BINDINGS(my_module) {
+EMSCRIPTEN_BINDINGS(module) {
         value_object<CodeResult>("RunCodeResult")
                 .field("output", &CodeResult::output)
                 .field("ok", &CodeResult::ok);

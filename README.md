@@ -1,4 +1,6 @@
 # Story programming language
+[story-language.vercel.app](https://story-language.vercel.app)
+
 I started this project as a joke, but it turned out to be more than this.  
 The language has a interpreter written in C++, and also a C++ transpiler.  
 
@@ -124,3 +126,13 @@ Output:
 ```
 1 2 3 5 8 13 21 34 55 89
 ```
+
+## Requirements
+1. C++ 11 compiler
+2. [Emscripten](https://emscripten.org) for Web Assembly
+
+## How to run
+1. In the root directory `emcc main.cpp --bind -o public/main.js -s NO_DISABLE_EXCEPTION_CATCHING` 
+2. Serve `public/index.html`
+
+[![Story website screenshot](https://i.imgur.com/URLas7U.png)](https://story-language.vercel.app)
