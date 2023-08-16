@@ -1,8 +1,9 @@
 # Story programming language
-I started this project as a joke, but it turned out to be more than this.
-The language has a interpreter written in C++, and also a C++ transpiler.
-The syntax is weird on purpose, but also very easy to read for non programmers, easier than Python.
-The language features variables, input/output, arithmetics, if statements, for loops and functions.
+I started this project as a joke, but it turned out to be more than this.  
+The language has a interpreter written in C++, and also a C++ transpiler.  
+
+The syntax is weird on purpose, but also very easy to read for non programmers, easier than Python.  
+The language features variables, input/output, arithmetics, if statements, for loops and functions.  
 
 I also created a Web Assembly frontend for the language, and a small documentation.
 
