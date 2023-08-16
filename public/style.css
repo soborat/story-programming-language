@@ -1,0 +1,131 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #222;
+    color: #f4f4f4;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    width: 90%;
+    height: 90%;
+    display: flex;
+    flex-direction: column;
+}
+
+.file-system {
+    display: flex;
+    align-items: center;
+    padding: 0.5em;
+    border-bottom: 1px solid #555;
+    margin-bottom: 1em;
+}
+
+.file-tab {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.8em 2em 0.8em 1em;
+    cursor: pointer;
+    margin-right: 0.5em;
+    background-color: #444;
+    transition: background-color 0.3s;
+    border-radius: 5px;
+    position: relative;
+}
+
+.file-tab.active {
+    background-color: #555;
+}
+
+.file-tab .close-btn {
+    color: white;
+    border-radius: 50%;
+    padding: 0.2em;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    cursor: pointer;
+}
+
+.panels-container {
+    flex: 1;
+    display: flex;
+    align-items: stretch;
+    height: 100%;
+}
+
+.panel {
+    flex: 1;
+    height: 100%;
+    padding: 1em;
+    border: 1px solid #555;
+    box-sizing: border-box;
+    background-color: #333;
+    overflow-y: auto;
+    color: white;
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+    resize: none;
+}
+
+.left-container {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    margin-right: 1em;
+}
+
+.new-tab, .actions button {
+    background-color: #555;
+    border: none;
+    padding: 10px 15px;
+    color: #f4f4f4;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: block;
+}
+
+.actions button {
+    margin-bottom: 0.5em;
+}
+
+.left, .right {
+    outline: none;
+}
+
+.exception {
+    color: red;
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 10px;
+}
+
+button.tutorial-btn {
+    background-color: #4A90E2;
+}
+
+button.transpile-btn {
+    background-color: #FF5733;
+}
+
+button.run-btn {
+    background-color: #4CAF50;
+}
+
+button:hover {
+    filter: brightness(90%);
+}
