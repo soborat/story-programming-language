@@ -13,10 +13,10 @@ public:
     std::vector<Node *> *elseBody;
 
     explicit IfNode(const std::vector<std::string> &words) {
-        if (words.size() != 4 || not_find(ifOperators, words[2])) {
+        if (words.size() != 4 || notFind(ifOperators, words[2])) {
             throw IfError();
         }
-        if (words[2] == "is" && not_find({"even", "odd"}, words[3])) {
+        if (words[2] == "is" && notFind({"even", "odd"}, words[3])) {
             throw IfError();
         }
         nodeType = IF;

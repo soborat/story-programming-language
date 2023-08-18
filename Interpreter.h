@@ -150,7 +150,7 @@ class Interpreter {
         if (node->nodeType == FUNC_CALL) {
             auto *funcCallNode = dynamic_cast<FunctionCallNode *>(node);
             std::string functionName = funcCallNode->name;
-            if (not_find(functions, functionName)) {
+            if (notFind(functions, functionName)) {
                 throw FucNotDefError(functionName);
             }
             functions[functionName]->nodeType = ROOT;
@@ -163,7 +163,7 @@ class Interpreter {
             std::string receiver = additionNode->receiver;
             int extraValue = getVariableOrConstant(value);
             int receiverValue = getVariableOrConstant(receiver);
-            if (not_find(variables, receiver)) {
+            if (notFind(variables, receiver)) {
                 throw UndefinedVariableError(receiver);
             }
             receiverValue += extraValue;
@@ -178,7 +178,7 @@ class Interpreter {
             std::string receiver = subtractionNode->receiver;
             int subtractValue = getVariableOrConstant(value);
             int receiverValue = getVariableOrConstant(receiver);
-            if (not_find(variables, receiver)) {
+            if (notFind(variables, receiver)) {
                 throw UndefinedVariableError(receiver);
             }
             receiverValue -= subtractValue;
@@ -193,7 +193,7 @@ class Interpreter {
             std::string receiver = multiplicationNode->receiver;
             int multiplierValue = getVariableOrConstant(value);
             int receiverValue = getVariableOrConstant(receiver);
-            if (not_find(variables, receiver)) {
+            if (notFind(variables, receiver)) {
                 throw UndefinedVariableError(receiver);
             }
             receiverValue *= multiplierValue;
@@ -208,7 +208,7 @@ class Interpreter {
             std::string receiver = divisionNode->receiver;
             int dividerValue = getVariableOrConstant(value);
             int receiverValue = getVariableOrConstant(receiver);
-            if (not_find(variables, receiver)) {
+            if (notFind(variables, receiver)) {
                 throw UndefinedVariableError(receiver);
             }
             if (dividerValue == 0) {

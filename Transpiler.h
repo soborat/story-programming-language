@@ -35,7 +35,7 @@ class Transpiler {
         }
         if (node->nodeType == LET) {
             auto *variableNode = dynamic_cast<VariableNode *>(node);
-            if(not_find(variables, variableNode->name)) {
+            if(notFind(variables, variableNode->name)) {
                 variables.push_back(variableNode->name);
             }
             std::string value = variableNode->value;
@@ -60,7 +60,7 @@ class Transpiler {
         }
         if (node->nodeType == READ) {
             auto *readNode = dynamic_cast<ReadNode *>(node);
-            if(not_find(variables, readNode->variable)) {
+            if(notFind(variables, readNode->variable)) {
                 variables.emplace_back(readNode->variable);
             }
             write("cin >> %s;", readNode->variable);
@@ -149,7 +149,7 @@ class Transpiler {
             if(getConstant(stop) != -1) {
                 stop = std::to_string(getConstant(stop));
             }
-            if(not_find(variables, variable)) {
+            if(notFind(variables, variable)) {
                 variables.push_back(variable);
             }
             if(start <= stop) {

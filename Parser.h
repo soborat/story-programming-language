@@ -119,7 +119,7 @@ public:
                 level.pop();
                 levelChange--;
             }
-            if (not_find(keywords, task)) {
+            if (notFind(keywords, task)) {
                 throw UnknownKeywordError(task);
             }
             Node *node;

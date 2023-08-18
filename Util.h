@@ -49,34 +49,34 @@ bool find(const std::unordered_map<K, V> &container, const K &key) {
 }
 
 template <typename Container, typename Value>
-bool not_find(const Container& container, const Value& value) {
+bool notFind(const Container& container, const Value& value) {
     return std::find(container.begin(), container.end(), value) == container.end();
 }
 
-bool not_find(const std::initializer_list<std::string>& init_list, const std::string& value) {
+bool notFind(const std::initializer_list<std::string>& init_list, const std::string& value) {
     return std::find(init_list.begin(), init_list.end(), value) == init_list.end();
 }
 
 template <typename K, typename V>
-bool not_find(const std::unordered_map<K, V> &container, const K &key) {
+bool notFind(const std::unordered_map<K, V> &container, const K &key) {
     return container.find(key) == container.end();
 }
 
 template <typename T>
-T fmt_arg(T t) {
+T fmtArg(T t) {
     return t;
 }
 
-const char* fmt_arg(const std::string& s) {
+const char* fmtArg(const std::string& s) {
     return s.c_str();
 }
 
 template <typename... Args>
 std::string fmt(const char* format, Args... args) {
-    size_t size = snprintf(nullptr, 0, format, fmt_arg(args)...) + 1;
+    size_t size = snprintf(nullptr, 0, format, fmtArg(args)...) + 1;
     std::unique_ptr<char[]> buffer(new char[size]);
 
-    snprintf(buffer.get(), size, format, fmt_arg(args)...);
+    snprintf(buffer.get(), size, format, fmtArg(args)...);
     return {buffer.get(), buffer.get() + size - 1};
 }
 
