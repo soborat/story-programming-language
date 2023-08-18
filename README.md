@@ -59,11 +59,11 @@ I also created a Web Assembly frontend for the language, and a small documentati
 
 `if X not-equals nine`
 
-`if X is lesser-than nine`
+`if X is less-than nine`
 
 `if X is greater-than nine`
 
-`if X is lesser-equal nine`
+`if X is less-equal nine`
 
 `if X is greater-equal nine`
 
@@ -115,7 +115,7 @@ function F
 
     add one to N
     
-    if N lesser-equal ten
+    if N less-equal ten
         call F
 
 call F

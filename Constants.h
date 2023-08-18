@@ -17,8 +17,8 @@ const std::unordered_map<std::string, IfOperator> ifOperators = {
         {"not-equals",    NOT_EQUALS},
         {"greater-than",  GREATER_THAN},
         {"greater-equal", GREATER_EQUAL},
-        {"lesser-than",   LESSER_THAN},
-        {"lesser-equal",  LESSER_EQUAL},
+        {"less-than",   LESS_THAN},
+        {"less-equal",  LESS_EQUAL},
         {"divisible-by",  DIVISIBLE_BY}
 };
 

@@ -113,12 +113,12 @@ class Transpiler {
             }
             else {
                 static std::unordered_map<IfOperator, std::string> operators = {
-                        {EQUALS, "=="},
-                        {NOT_EQUALS, "!="},
-                        {GREATER_THAN, ">"},
+                        {EQUALS,        "=="},
+                        {NOT_EQUALS,    "!="},
+                        {GREATER_THAN,  ">"},
                         {GREATER_EQUAL, ">="},
-                        {LESSER_THAN, "<"},
-                        {LESSER_EQUAL, "<="}
+                        {LESS_THAN,     "<"},
+                        {LESS_EQUAL,    "<="}
                 };
                 std::string operand = ifNode->operand;
                 if(getConstant(operand) != -1) {

@@ -100,10 +100,10 @@ class Interpreter {
                 if (ifOperator == GREATER_EQUAL) {
                     condition = value >= operandValue;
                 }
-                if (ifOperator == LESSER_THAN) {
+                if (ifOperator == LESS_THAN) {
                     condition = value < operandValue;
                 }
-                if (ifOperator == LESSER_EQUAL) {
+                if (ifOperator == LESS_EQUAL) {
                     condition = value <= operandValue;
                 }
                 if (ifOperator == DIVISIBLE_BY) {

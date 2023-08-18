@@ -13,8 +13,8 @@ enum IfOperator {
     NOT_EQUALS,
     GREATER_THAN,
     GREATER_EQUAL,
-    LESSER_THAN,
-    LESSER_EQUAL,
+    LESS_THAN,
+    LESS_EQUAL,
     DIVISIBLE_BY,
 };
 
