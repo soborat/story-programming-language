@@ -99,7 +99,7 @@ class Transpiler {
         }
         if (node->nodeType == IF) {
             auto *ifNode = dynamic_cast<IfNode *>(node);
-            if(ifNode->ifOperator == "is") {
+            if(ifNode->ifOperator == IS) {
                 std::string condition;
                 if (ifNode->operand == "odd") {
                     condition = "% 2 == 1";
@@ -108,23 +108,23 @@ class Transpiler {
                 }
                 write("if (%s %s) {", ifNode->variable, condition);
             }
-            else if(ifNode->ifOperator == "divisible-by") {
+            else if(ifNode->ifOperator == DIVISIBLE_BY) {
                 write("if (%s %% %s == 0) {", ifNode->variable, ifNode->operand);
             }
             else {
-                static std::unordered_map<std::string, std::string> operators = {
-                        {"equals", "=="},
-                        {"not-equals", "!="},
-                        {"greater-than", ">"},
-                        {"greater-equal", ">="},
-                        {"lesser-than", "<"},
-                        {"lesser-equal", "<="}
+                static std::unordered_map<IfOperator, std::string> operators = {
+                        {EQUALS, "=="},
+                        {NOT_EQUALS, "!="},
+                        {GREATER_THAN, ">"},
+                        {GREATER_EQUAL, ">="},
+                        {LESSER_THAN, "<"},
+                        {LESSER_EQUAL, "<="}
                 };
                 std::string operand = ifNode->operand;
                 if(getConstant(operand) != -1) {
                     operand = std::to_string(getConstant(operand));
                 }
-                write("if (%s %s %s) {", ifNode->variable, operators[ifNode->ifOperator], operand);
+                write("if (%s %s %s) {", ifNode->variable, operators.at(ifNode->ifOperator), operand);
             }
             for(Node *n: node->body) {
                 translate(n, indentValue + 1);

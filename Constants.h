@@ -4,11 +4,23 @@
 #include <string>
 #include <unordered_map>
 #include <fstream>
-#include "SyntaxNodes/Node.h"
 #include "Util.h"
+#include "SyntaxNodes/Node.h"
+#include "SyntaxNodes/IfNode.h"
 
-std::vector<std::string> keywords = {"let", "say", "read", "if", "else", "for", "function", "call", "add", "subtract", "multiply", "divide"};
-std::vector<std::string> ifOperators = {"is", "equals", "not-equals", "greater-than", "greater-equal", "lesser-than",  "lesser-equal", "divisible-by"};
+const std::vector<std::string> keywords = {"let", "say", "read", "if", "else", "for", "function", "call", "add", "subtract", "multiply", "divide"};
+
+
+const std::unordered_map<std::string, IfOperator> ifOperators = {
+        {"is",            IS},
+        {"equals",        EQUALS},
+        {"not-equals",    NOT_EQUALS},
+        {"greater-than",  GREATER_THAN},
+        {"greater-equal", GREATER_EQUAL},
+        {"lesser-than",   LESSER_THAN},
+        {"lesser-equal",  LESSER_EQUAL},
+        {"divisible-by",  DIVISIBLE_BY}
+};
 
 std::string enumToString(NodeType value) {
     static std::unordered_map<NodeType, std::string> enumMap = {
@@ -32,7 +44,8 @@ std::string enumToString(NodeType value) {
     return "UNKNOWN";
 }
 
-std::unordered_map<std::string, int> allNumbers = {
+// this is auto generated, don't worry
+const std::unordered_map<std::string, int> allNumbers = {
         {"zero", 0},
         {"one", 1},
         {"two", 2},
@@ -137,7 +150,7 @@ std::unordered_map<std::string, int> allNumbers = {
 
 int getConstant(const std::string &number) {
     if (find(allNumbers, number)) {
-        return allNumbers[number];
+        return allNumbers.at(number);
     }
     return -1;
 }

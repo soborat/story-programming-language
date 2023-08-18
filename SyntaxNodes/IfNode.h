@@ -1,14 +1,16 @@
 #pragma once
 
 #include <string>
+#include <unordered_map>
 #include "Node.h"
 #include "../Exceptions.h"
 #include "../Constants.h"
 
+
 class IfNode : public Node {
 public:
     std::string variable;
-    std::string ifOperator;
+    IfOperator ifOperator;
     std::string operand;
     std::vector<Node *> *elseBody;
 
@@ -21,7 +23,7 @@ public:
         }
         nodeType = IF;
         variable = words[1];
-        ifOperator = words[2];
+        ifOperator = ifOperators.at(words[2]);
         operand = words[3];
         elseBody = nullptr;
     }
@@ -29,5 +31,4 @@ public:
     void setElseBody(std::vector<Node *> &nodes) {
         elseBody = &nodes;
     }
-
 };

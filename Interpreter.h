@@ -77,10 +77,10 @@ class Interpreter {
             auto *ifNode = dynamic_cast<IfNode *>(node);
             std::string variableName = ifNode->variable;
             int value = getVariableOrConstant(variableName);
-            std::string ifOperator = ifNode->ifOperator;
+            IfOperator ifOperator = ifNode->ifOperator;
             std::string operand = ifNode->operand;
             bool condition;
-            if (ifOperator == "is") {
+            if (ifOperator == IS) {
                 if (operand == "odd") {
                     condition = value % 2 == 1;
                 } else {
@@ -88,25 +88,25 @@ class Interpreter {
                 }
             } else {
                 int operandValue = getVariableOrConstant(operand);
-                if (ifOperator == "equals") {
+                if (ifOperator == EQUALS) {
                     condition = value == operandValue;
                 }
-                if (ifOperator == "not-equals") {
+                if (ifOperator == NOT_EQUALS) {
                     condition = value != operandValue;
                 }
-                if (ifOperator == "greater-than") {
+                if (ifOperator == GREATER_THAN) {
                     condition = value > operandValue;
                 }
-                if (ifOperator == "greater-equal") {
+                if (ifOperator == GREATER_EQUAL) {
                     condition = value >= operandValue;
                 }
-                if (ifOperator == "lesser-than") {
+                if (ifOperator == LESSER_THAN) {
                     condition = value < operandValue;
                 }
-                if (ifOperator == "lesser-equal") {
+                if (ifOperator == LESSER_EQUAL) {
                     condition = value <= operandValue;
                 }
-                if (ifOperator == "divisible-by") {
+                if (ifOperator == DIVISIBLE_BY) {
                     condition = value % operandValue == 0;
                 }
             }
